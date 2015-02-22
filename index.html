@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+ <body>
+  <script>
+   (function(){
+     
+     // Technologies used:
+     //  * data uri
+     //  * cross-origin communication
+     //  * promises
+     
+     var frame = document.createElement("iframe");
+     frame.src = "data:text/html;charset=utf-8,%3C%21document%20html%3E%3Chtml%3E%20%3Chead%3E%20%3Cmeta%20charset%3Dutf-8%2F%3E%20%3Ctitle%3EInterStorage%3C%2Ftitle%3E%20%3C%2Fhead%3E%20%3Cbody%3E%20%3Cscript%3Ewindow.addEventListener%28%22message%22%2Cfunction%28e%29%7Bswitch%28e.data%5B0%5D%29%7Bcase%20%22v%22%3A%20e.source.postMessage%28%220.0.0%22%29%3B%20break%3B%20case%20%22get%22%3A%20e.source.postMessage%28%5B%20e.data%5B1%5D%2C%20localStorage.getItem%28%20e.data%5B2%5D%20%29%5D%2C%20%22%2A%22%29%3B%20break%3B%20case%20%22set%22%3A%20localStorage.setItem%28%20e.data%5B1%5D%2C%20e.data%5B2%5D%20%29%3B%20break%3B%20case%20%22rm%22%3A%20localStorage.removeItem%28%20e.data%5B1%5D%20%29%3B%20break%3B%7D%7D%29%3B%20%3C%2Fscript%3E%20%3C%2Fbody%3E%3C%2Fhtml%3E";
+     frame.style.display = "none";
+     document.body.appendChild(frame);
+     Object.freeze(frame);
+     
+     var pending = [];
+     
+     window.globalStorage = Object.create(null);
+     
+     globalStorage.get = function(name){
+       frame.contentWindow.postMessage([
+        "get", pending.length, name
+       ],"*");
+       return new Promise(function(r){
+         pending.push(r);
+       });
+     };
+     
+     globalStorage.set = function(name,value){
+       frame.contentWindow.postMessage([
+        "set", name, value
+       ],"*");
+     };
+     
+     globalStorage.remove = function(name){
+       frame.contentWindow.postMessage([
+        "rm", name
+       ],"*");
+     };
+     
+     addEventListener("message",function(e){
+       if(e.source !== frame.contentWindow){ return; }
+       pending[ e.data[0] ]( e.data[1] );
+     });
+     
+   })();
+  </script>
+ </body>
+</html>
