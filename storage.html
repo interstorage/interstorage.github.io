@@ -6,25 +6,54 @@
  </head>
  <body>
   <script>
+   var stored;
+   var date = new Date();
+   
+   function update(){
+     date.setTime(date.getTime()+31104000000);
+     document.cookie = "x-global-storage="+
+          JSON.stringify(stored)+
+          "; expires="+date.toGMTString()+"; path=/";
+   }
+   
+   (function(){
+     
+     var arr = document.cookie.split(';'), i = -1, c;
+     
+     while (++i < arr.length){
+       c = arr[i].trimLeft();
+       if( /^x-global-storage=/.test(c) ){
+         stored = JSON.parse( c.substr(17)  );
+         /* 17 === "x-global-storage=".length */
+         break;
+       }
+     }
+     
+     if( !stored ){ stored = {}; }
+     
+   })();
+   
+   
    window.addEventListener("message",function(e){
      switch(e.data[0]){
        case "v":
-         e.source.postMessage("0.0.0");
+         e.source.postMessage(0);
          break;
       
        case "get":
          e.source.postMessage([
            e.data[1],
-           localStorage.getItem( e.data[2] )
+           stored[ e.data[2] ]
          ], "*");
          break;
        
        case "set":
-         localStorage.setItem( e.data[1], e.data[2] );
+         stored[ e.data[1] ] = e.data[2];
+         update();
          break;
        
        case "rm":
-         localStorage.removeItem( e.data[1] );
+         delete stored[ e.data[1] ];
          break;
        
      }
