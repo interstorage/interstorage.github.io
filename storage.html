@@ -22,9 +22,9 @@
      
      while (++i < arr.length){
        c = arr[i].trimLeft();
-       if( /^x-global-storage=/.test(c) ){
-         stored = JSON.parse( c.substr(17)  );
-         /* 17 === "x-global-storage=".length */
+       if( /^x-interstorage=/.test(c) ){
+         stored = JSON.parse( c.substr(15)  );
+         /* 15 === "x-interstorage=".length */
          break;
        }
      }
@@ -43,17 +43,27 @@
        case "get":
          e.source.postMessage([
            e.data[1],
-           stored[ e.data[2] ]
+           localStorage ?
+             localStorage.getItem( e.data[2] ) :
+             stored[ e.data[2] ]
          ], "*");
          break;
        
        case "set":
-         stored[ e.data[1] ] = e.data[2];
-         update();
+         if(localStorage){
+           localStorage.setItem( e.data[1], e.data[2] );
+         }else{
+           stored[ e.data[1] ] = e.data[2];
+           update();
+         }
          break;
        
        case "rm":
-         delete stored[ e.data[1] ];
+         if(localStorage){
+           localStorage.removeItem( e.data[1] );
+         }else{
+           delete stored[ e.data[1] ];
+         }
          break;
        
      }
