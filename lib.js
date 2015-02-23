@@ -1,5 +1,5 @@
 
-   (function(){
+window.addEventListener("load", function(){
      
      // Technologies used:
      //  * local storage or cookies
@@ -16,7 +16,7 @@
      
      window.globalStorage = Object.create(null);
      
-     globalStorage.get = function(name){
+     globalStorage.getItem = function(name){
        frame.contentWindow.postMessage([
         "get", pending.length, name
        ],"*");
@@ -25,13 +25,13 @@
        });
      };
      
-     globalStorage.set = function(name,value){
+     globalStorage.setItem = function(name,value){
        frame.contentWindow.postMessage([
         "set", name, value
        ],"*");
      };
      
-     globalStorage.remove = function(name){
+     globalStorage.removeItem = function(name){
        frame.contentWindow.postMessage([
         "rm", name
        ],"*");
@@ -42,4 +42,4 @@
        pending[ e.data[0] ]( e.data[1] );
      });
      
-   })();
+});
