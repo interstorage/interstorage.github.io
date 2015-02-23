@@ -7,7 +7,7 @@
      //  * promises
      
      var frame = document.createElement("iframe");
-     frame.src = "https://raw.githubusercontent.com/interstorage/interstorage/master/storage.html";
+     frame.src = "https://interstorage.github.io/server.html";
      frame.style.display = "none";
      document.body.appendChild(frame);
      Object.freeze(frame);
